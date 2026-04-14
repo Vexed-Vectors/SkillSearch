@@ -1,0 +1,130 @@
+{
+  "name": "skillforge",
+  "displayName": "SkillForge",
+  "description": "Discover, install, and publish AI copilot skill files from the SkillForge registry",
+  "version": "0.1.0",
+  "publisher": "skillforge-internal",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "skillforge-explorer",
+          "title": "SkillForge",
+          "icon": "$(zap)"
+        }
+      ]
+    },
+    "views": {
+      "skillforge-explorer": [
+        {
+          "id": "skillforgeSkills",
+          "name": "Skills",
+          "type": "tree"
+        },
+        {
+          "id": "skillforgePackages",
+          "name": "Packages",
+          "type": "tree"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "skillforge.refreshSkills",
+        "title": "SkillForge: Refresh Skills",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "skillforge.installSkill",
+        "title": "SkillForge: Install Skill",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "skillforge.installPackage",
+        "title": "SkillForge: Install Package"
+      },
+      {
+        "command": "skillforge.publishSkill",
+        "title": "SkillForge: Publish Current File as Skill",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "skillforge.searchSkills",
+        "title": "SkillForge: Search Skills",
+        "icon": "$(search)"
+      },
+      {
+        "command": "skillforge.openPortal",
+        "title": "SkillForge: Open Web Portal",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "skillforge.viewSkillDetail",
+        "title": "View Skill Details"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "skillforge.refreshSkills",
+          "when": "view == skillforgeSkills",
+          "group": "navigation"
+        },
+        {
+          "command": "skillforge.searchSkills",
+          "when": "view == skillforgeSkills",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "skillforge.installSkill",
+          "when": "view == skillforgeSkills && viewItem == skill",
+          "group": "inline"
+        },
+        {
+          "command": "skillforge.viewSkillDetail",
+          "when": "view == skillforgeSkills && viewItem == skill"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "skillforge.publishSkill",
+          "when": "resourceExtname == .md",
+          "group": "skillforge"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SkillForge",
+      "properties": {
+        "skillforge.registryUrl": {
+          "type": "string",
+          "default": "http://localhost:3001",
+          "description": "URL of the SkillForge Registry API"
+        },
+        "skillforge.portalUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "URL of the SkillForge Web Portal"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "package": "npx vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}
