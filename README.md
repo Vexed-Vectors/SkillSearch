@@ -1,69 +1,66 @@
 # SkillForge
 
-An internal platform for managing and distributing AI copilot skill files (`.md` instructions for GitHub Copilot).
+An internal platform for managing and distributing AI copilot skill files (`.md` instructions for GitHub Copilot). Search, install, and publish skills from a centralized registry — via CLI, web portal, or VS Code extension.
 
 ---
 
-## Quick Start (from scratch)
+## Table of Contents
 
-### Prerequisites
-
-- **Node.js** v18 or later — [download](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- A terminal (PowerShell, CMD, or VS Code integrated terminal)
+- [Prerequisites](#prerequisites)
+- [Full Setup (from clone)](#full-setup-from-clone)
+- [Running Each Component](#running-each-component)
+- [CLI Usage](#cli-usage)
+- [Building the VS Code Extension](#building-the-vs-code-extension)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-### Step 1: Clone / Copy the project
+## Prerequisites
 
-Get the `SkillSearch` folder onto your machine. Open a terminal and navigate into it:
+| Tool | Version | Check |
+|------|---------|-------|
+| **Node.js** | v18 or later | `node --version` |
+| **npm** | v9 or later (comes with Node.js) | `npm --version` |
+| **Git** | Any recent version | `git --version` |
+| **VS Code** | v1.85+ (only for extension) | `code --version` |
+
+---
+
+## Full Setup (from clone)
+
+### 1. Clone the repository
 
 ```powershell
-cd C:\Users\VEDANT SINGH\Desktop\SkillSearch
+git clone https://github.com/Vexed-Vectors/SkillSearch.git
+cd SkillSearch
 ```
 
----
+### 2. Install everything
 
-### Step 2: Install all dependencies
-
-This installs dependencies for the registry API and CLI in one go (npm workspaces):
+This single command installs all dependencies and builds the VS Code extension:
 
 ```powershell
-npm install
+npm run setup
 ```
 
-You should see output like `added XXX packages`. This step is done once.
+> This runs `npm install` for the root workspace (registry + CLI), the web portal, and the VS Code extension, then compiles the extension.
 
----
-
-### Step 3: Start the Registry API
-
-The registry must be running before you can use the CLI, web portal, or extension. Open a **new terminal** and run:
+### 3. Build the VS Code extension `.vsix` (for installing in VS Code)
 
 ```powershell
-npm run registry
+npm run build:extension
 ```
 
-You should see:
+This creates `packages/vscode-extension/skillforge-0.1.0.vsix`. Install it:
 
-```
-✅ Database initialized
-🌱 Seeding database...
-  ✅ Seeded 19 personas
-  ✅ Seeded 4 skills
-  ✅ Seeded 3 packages
-🎉 Seeding complete!
-
-🚀 SkillForge Registry API running at http://localhost:3001
+```powershell
+code --install-extension packages/vscode-extension/skillforge-0.1.0.vsix
 ```
 
-> **Keep this terminal open.** The registry must stay running while you use the CLI.
+### 4. (Optional) Link the CLI globally
 
----
-
-### Step 4: Link the CLI globally
-
-By default, you'd have to type `node packages/cli/src/index.js` every time. To use the shorthand `skillforge` command instead, run this **once**:
+To use `skillforge` as a command from any directory:
 
 ```powershell
 cd packages\cli
@@ -71,186 +68,275 @@ npm link
 cd ..\..
 ```
 
-After this, the `skillforge` command works from **any directory** on your system.
+After this, `skillforge search spring` works from anywhere. Without this step, use:
 
-> **If `npm link` gives a permission error**, run PowerShell as Administrator and try again.
+```powershell
+node packages/cli/src/index.js search spring
+```
 
 ---
 
-### Step 5: Verify it works
+## Running Each Component
+
+> **The Registry API must be running first.** All other components depend on it.
+
+### Registry API (required)
+
+Open a terminal and run from the project root:
+
+```powershell
+npm run registry
+```
+
+Output:
+
+```
+🚀 SkillForge Registry API running at http://localhost:3001
+   📚 Skills:   http://localhost:3001/api/skills
+   📦 Packages: http://localhost:3001/api/packages
+   👤 Personas: http://localhost:3001/api/personas
+```
+
+On first run, it automatically seeds the database with sample personas, skills, and packages.
+
+### Web Portal
+
+Open a **second terminal**:
+
+```powershell
+cd packages/web-portal
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### CLI
+
+With `npm link` done (Step 6 above):
 
 ```powershell
 skillforge --help
 ```
 
-You should see:
+Without `npm link`:
 
+```powershell
+node packages/cli/src/index.js --help
 ```
-Usage: skillforge [options] [command]
 
-⚡ SkillForge CLI — Search, install, and publish AI copilot skills
+### VS Code Extension
 
-Options:
-  -V, --version                  output the version number
-  -h, --help                     display help for command
-
-Commands:
-  search [options] [query]       Search for skills in the registry
-  browse [options]               Browse the persona taxonomy and skills
-  install [options] <name>       Install a skill into the current workspace
-  publish [options] [directory]  Publish a skill from a directory to the registry
-  list [options]                 List skills installed in the current workspace
-  init [options] [name]          Scaffold a new skill with template files
-  help [command]                 display help for command
-```
+See [Building the VS Code Extension](#building-the-vs-code-extension) below.
 
 ---
 
-## CLI Commands
+## CLI Usage
 
 ### Search for skills
 
 ```powershell
-# Search by keyword
-skillforge search spring
-
-# Search with persona filter
-skillforge search --persona java-spring
-
-# Search with tags
-skillforge search --tags rest-api,java
-
-# List all skills
-skillforge search
+skillforge search                          # List all skills
+skillforge search spring                   # Search by keyword
+skillforge search --persona java-spring    # Filter by persona
+skillforge search --tags rest-api,java     # Filter by tags
 ```
-
----
 
 ### Browse persona taxonomy
 
 ```powershell
-# Show the full persona tree
-skillforge browse
-
-# Show skills for a specific persona
-skillforge browse --persona python-mcp
+skillforge browse                          # Show full persona tree
+skillforge browse --persona python-mcp     # Show skills for a persona
 ```
 
----
+### Install a skill into your project
 
-### Install a skill
-
-Navigate to **your project folder** (the workspace where you want the skill installed), then:
+Navigate to your project folder first:
 
 ```powershell
-# Navigate to your project
 cd C:\path\to\my-project
-
-# Install a skill (writes to .github/copilot-instructions.md)
 skillforge install spring-boot-rest-api
-
-# Install a different skill
-skillforge install react-typescript-components
-
-# Install from a different directory (without cd)
-skillforge install python-mcp-server --dir C:\path\to\my-project
 ```
 
-**What happens:**
-- A `.github/copilot-instructions.md` file is created (or appended to) in your project
-- Each skill is wrapped in comment markers so multiple skills can coexist:
-  ```markdown
-  <!-- SkillForge: spring-boot-rest-api -->
-  ...skill content...
-  <!-- /SkillForge: spring-boot-rest-api -->
-  ```
-- GitHub Copilot automatically reads this file and uses it as context
+Or specify the target directory:
 
----
+```powershell
+skillforge install spring-boot-rest-api --dir C:\path\to\my-project
+```
+
+This creates/appends to `.github/copilot-instructions.md` in your project. GitHub Copilot reads this file automatically.
 
 ### Install a package (bundle of skills)
 
 ```powershell
-# Install all skills in a curated package
 skillforge install java-spring-starter --package
-
-# Other available packages
 skillforge install python-ai-toolkit --package
 skillforge install react-frontend-kit --package
 ```
 
----
+### List installed skills
+
+```powershell
+cd C:\path\to\my-project
+skillforge list
+```
 
 ### Scaffold a new skill
 
 ```powershell
-# Create a new skill template
 skillforge init my-awesome-skill
-
-# This creates:
-#   my-awesome-skill/
-#   ├── skill.yaml        ← Edit metadata here
-#   └── instruction.md    ← Write your copilot instructions here
 ```
 
----
+Creates a template directory:
+
+```
+my-awesome-skill/
+├── skill.yaml        ← Edit metadata here
+└── instruction.md    ← Write your copilot instructions here
+```
 
 ### Publish a skill to the registry
 
-After editing your skill's `instruction.md`:
-
 ```powershell
-# Option A: Publish from a directory that has skill.yaml
+# From a directory with skill.yaml + instruction.md
 skillforge publish ./my-awesome-skill
 
-# Option B: Publish with inline metadata (no skill.yaml needed)
-skillforge publish ./my-awesome-skill \
-  --name my-awesome-skill \
-  --description "Guides Copilot to do X" \
-  --persona java-spring \
-  --tags "spring,java,rest" \
-  --author "your-name"
+# Or provide metadata inline
+skillforge publish ./my-awesome-skill --name my-skill --description "Does X" --persona java-spring --tags "spring,java" --author "your-name"
 ```
 
----
-
-### List installed skills
+### Full end-to-end workflow
 
 ```powershell
-# Check what skills are installed in the current workspace
-cd C:\path\to\my-project
-skillforge list
-
-# Or specify a directory
-skillforge list --dir C:\path\to\my-project
-```
-
----
-
-## Full Example: End-to-End Workflow
-
-```powershell
-# 1. Make sure registry is running (in a separate terminal)
+# Terminal 1: Start registry
 npm run registry
 
-# 2. Search for what's available
-skillforge search
-
-# 3. Go to your project
-cd C:\Users\VEDANT SINGH\Projects\my-spring-app
-
-# 4. Install a skill
-skillforge install spring-boot-rest-api
-
-# 5. Verify it was installed
-skillforge list
-
-# 6. Check the generated file
-cat .github\copilot-instructions.md
-
-# 7. Open VS Code — Copilot now uses these instructions!
-code .
+# Terminal 2: Use the CLI
+skillforge search                                    # See what's available
+skillforge install spring-boot-rest-api              # Install to current dir
+skillforge list                                      # Verify installation
+cat .github\copilot-instructions.md                  # View the generated file
+code .                                               # Open VS Code — Copilot now uses these!
 ```
+
+---
+
+## Building the VS Code Extension
+
+### Build from source
+
+```powershell
+cd packages/vscode-extension
+
+# 1. Install dev dependencies
+npm install
+
+# 2. Compile TypeScript → JavaScript bundle
+npm run compile
+```
+
+The compiled extension is at `dist/extension.js`.
+
+### Package as .vsix
+
+To create an installable `.vsix` file:
+
+```powershell
+cd packages/vscode-extension
+npx @vscode/vsce package --no-dependencies --allow-missing-repository --skip-license
+```
+
+This produces `skillforge-0.1.0.vsix` in the same directory.
+
+### Install the extension in VS Code
+
+```powershell
+code --install-extension packages/vscode-extension/skillforge-0.1.0.vsix
+```
+
+Or in VS Code: **Extensions panel → ⋯ menu → Install from VSIX...** → select the `.vsix` file.
+
+### Using the extension
+
+1. Look for the **⚡ SkillForge** icon in the Activity Bar (left sidebar)
+2. The **Skills** panel shows a tree: Persona → Skills
+3. The **Packages** panel shows curated bundles
+4. Right-click a skill → **Install** to add it to your workspace
+5. Right-click any `.md` file in the editor → **Publish to SkillForge**
+6. Use the Command Palette (`Ctrl+Shift+P`) and type `SkillForge` to see all commands
+
+> **Note:** The registry must be running (`npm run registry`) for the extension to work.
+
+### Watch mode (for development)
+
+If you're modifying the extension source code:
+
+```powershell
+cd packages/vscode-extension
+npm run watch
+```
+
+This auto-rebuilds on file changes. Press `F5` in VS Code to launch a debug Extension Host.
+
+---
+
+## Project Structure
+
+```
+SkillSearch/
+├── package.json                           # Monorepo root (npm workspaces)
+├── README.md                              # This file
+├── IMPLEMENTATION_PLAN.md                 # Architecture documentation
+├── .github/
+│   └── copilot-instructions.md            # Copilot instructions for this project
+├── sample-skills/                         # Pre-built sample skills (seed data)
+│   ├── spring-boot-rest-api/
+│   ├── react-typescript-components/
+│   ├── python-mcp-server/
+│   └── skillforge-development/
+└── packages/
+    ├── registry/                          # REST API (Express + SQLite)
+    │   └── src/
+    │       ├── index.js                   # Server entry point
+    │       ├── db.js                      # SQLite schema
+    │       ├── seed.js                    # Seeds sample data
+    │       ├── routes/                    # HTTP route handlers
+    │       └── services/                  # Business logic
+    ├── web-portal/                        # Web UI (Next.js)
+    │   └── src/app/
+    │       ├── page.tsx                   # Skills catalog
+    │       ├── skills/[id]/page.tsx       # Skill detail
+    │       ├── packages/page.tsx          # Packages catalog
+    │       └── publish/page.tsx           # Publish wizard
+    ├── cli/                               # CLI tool (Commander.js)
+    │   └── src/
+    │       ├── index.js                   # Entry point
+    │       └── commands/                  # search, install, publish, etc.
+    └── vscode-extension/                  # VS Code extension (TypeScript)
+        ├── src/
+        │   ├── extension.ts               # Main activation
+        │   ├── providers/                 # Sidebar tree views
+        │   └── api/                       # Registry API client
+        └── dist/                          # Compiled output (after build)
+```
+
+---
+
+## API Reference
+
+The Registry API runs on `http://localhost:3001`. Key endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/skills` | List/search skills (`?search=`, `?persona=`, `?tags=`) |
+| `GET` | `/api/skills/:name` | Get skill details |
+| `POST` | `/api/skills` | Publish a new skill |
+| `POST` | `/api/skills/:name/install` | Record install + get formatted content |
+| `GET` | `/api/packages` | List packages |
+| `GET` | `/api/packages/:name` | Get package with skills |
+| `GET` | `/api/packages/:name/download` | Download package as zip |
+| `GET` | `/api/personas` | Get persona taxonomy tree |
+| `GET` | `/api/stats` | Registry statistics |
+| `GET` | `/api/health` | Health check |
 
 ---
 
@@ -258,50 +344,70 @@ code .
 
 ### `skillforge: command not found`
 
-You haven't linked the CLI globally. Run:
+The CLI isn't globally linked. Either:
+
 ```powershell
-cd C:\Users\VEDANT SINGH\Desktop\SkillSearch\packages\cli
+# Option A: Link it globally (one-time)
+cd packages/cli
 npm link
+
+# Option B: Use the full path
+node packages/cli/src/index.js <command>
 ```
 
-Or use the long form instead:
-```powershell
-node C:\Users\VEDANT SINGH\Desktop\SkillSearch\packages\cli\src\index.js search spring
-```
+### `fetch failed` / `ECONNREFUSED`
 
-### `fetch failed` or `API error`
+The registry isn't running. Start it:
 
-The registry isn't running. Open a terminal and run:
 ```powershell
-cd C:\Users\VEDANT SINGH\Desktop\SkillSearch
 npm run registry
 ```
 
-### `A skill with name "X" already exists`
+### `Cannot find module 'better-sqlite3'`
 
-That skill name is already in the registry. Use a different name or update the existing skill via the web portal.
+Dependencies aren't installed. Run from the project root:
+
+```powershell
+npm install
+```
+
+### VS Code extension doesn't show in sidebar
+
+1. Make sure the `.vsix` is installed: `code --install-extension packages/vscode-extension/skillforge-0.1.0.vsix`
+2. Reload VS Code: `Ctrl+Shift+P` → `Developer: Reload Window`
+3. Check the registry is running on `localhost:3001`
+
+### Extension build fails with TypeScript errors
+
+Make sure dev dependencies are installed:
+
+```powershell
+cd packages/vscode-extension
+npm install
+npm run compile
+```
+
+### Web portal shows "skills: 0"
+
+The registry isn't running or hasn't been seeded. Start the registry first — it auto-seeds on the first run.
 
 ---
 
-## Optional: Web Portal
+## Contributing
 
-For a visual UI to browse and publish skills, start the web portal in a separate terminal:
+### Adding a new skill
 
-```powershell
-cd C:\Users\VEDANT SINGH\Desktop\SkillSearch\packages\web-portal
-npm run dev
-```
+1. `skillforge init my-skill`
+2. Edit `instruction.md` with your copilot instructions
+3. Update `skill.yaml` with the correct persona and tags
+4. `skillforge publish ./my-skill`
 
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+### Adding a new persona
+
+Edit `packages/registry/src/seed.js` and add to the `PERSONAS` array. Delete `packages/registry/data/skillforge.db` and restart the registry to re-seed.
 
 ---
 
-## Optional: VS Code Extension
+## License
 
-Install the pre-built extension to get a sidebar panel in VS Code:
-
-```powershell
-code --install-extension C:\Users\VEDANT SINGH\Desktop\SkillSearch\packages\vscode-extension\skillforge-0.1.0.vsix
-```
-
-Look for the ⚡ icon in the Activity Bar. The extension requires the registry to be running.
+Internal use only.

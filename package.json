@@ -9,6 +9,10 @@
   ],
   "scripts": {
     "registry": "npm run dev --workspace=packages/registry",
-    "cli": "npm run dev --workspace=packages/cli"
+    "cli": "npm run dev --workspace=packages/cli",
+    "setup": "npm install && cd packages/web-portal && npm install && cd ../vscode-extension && npm install && npm run compile && cd ../..",
+    "setup:portal": "cd packages/web-portal && npm install",
+    "setup:extension": "cd packages/vscode-extension && npm install && npm run compile",
+    "build:extension": "cd packages/vscode-extension && npm run compile && npx @vscode/vsce package --no-dependencies --allow-missing-repository --skip-license"
   }
 }

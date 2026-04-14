@@ -2,5 +2,5 @@ node_modules/
 packages/*/node_modules/
 packages/registry/data/
 .next/
-dist/
+packages/vscode-extension/dist/
 *.vsix
