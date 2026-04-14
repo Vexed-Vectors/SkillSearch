@@ -1,0 +1,21 @@
+{
+  "name": "@skillforge/registry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SkillForge Registry API — Express + SQLite backend",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^10.0.0",
+    "yaml": "^2.6.0"
+  }
+}

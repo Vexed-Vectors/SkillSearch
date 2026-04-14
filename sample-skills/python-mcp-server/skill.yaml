@@ -1,0 +1,14 @@
+name: python-mcp-server
+version: 1.0.0
+description: "Guides Copilot in building Model Context Protocol (MCP) servers in Python — proper tool definitions, resource handlers, and server lifecycle management."
+author: ai-platform-team
+persona: python-mcp
+tags:
+  - python
+  - mcp
+  - model-context-protocol
+  - ai-tooling
+  - server
+compatibleWith:
+  - copilot-instructions
+targetFile: .github/copilot-instructions.md

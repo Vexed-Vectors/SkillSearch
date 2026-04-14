@@ -1,0 +1,15 @@
+name: skillforge-development
+version: 1.0.0
+description: "Copilot instructions for developing the SkillForge platform — an internal tool for managing and distributing AI copilot skill files across engineering teams."
+author: platform-team
+persona: react-typescript
+tags:
+  - skillforge
+  - internal-tooling
+  - vscode-extension
+  - nodejs
+  - typescript
+  - monorepo
+compatibleWith:
+  - copilot-instructions
+targetFile: .github/copilot-instructions.md

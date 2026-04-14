@@ -1,0 +1,15 @@
+name: react-typescript-components
+version: 1.0.0
+description: "Instructs Copilot to generate React components using TypeScript best practices — proper typing, hooks patterns, component composition, and accessible UI."
+author: frontend-team
+persona: react-typescript
+tags:
+  - react
+  - typescript
+  - frontend
+  - components
+  - hooks
+  - accessibility
+compatibleWith:
+  - copilot-instructions
+targetFile: .github/copilot-instructions.md

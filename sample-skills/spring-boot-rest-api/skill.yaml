@@ -1,0 +1,14 @@
+name: spring-boot-rest-api
+version: 1.0.0
+description: "Guides Copilot to generate idiomatic Spring Boot REST APIs with proper exception handling, validation annotations, and layered architecture patterns."
+author: jsmith
+persona: java-spring
+tags:
+  - spring-boot
+  - rest-api
+  - java
+  - backend
+  - validation
+compatibleWith:
+  - copilot-instructions
+targetFile: .github/copilot-instructions.md

@@ -1,0 +1,14 @@
+{
+  "name": "skillforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SkillForge — AI Skills Registry for GitHub Copilot instruction files",
+  "workspaces": [
+    "packages/registry",
+    "packages/cli"
+  ],
+  "scripts": {
+    "registry": "npm run dev --workspace=packages/registry",
+    "cli": "npm run dev --workspace=packages/cli"
+  }
+}
